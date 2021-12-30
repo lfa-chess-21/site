@@ -34,7 +34,7 @@
         }
 
         // TODO replace with current URL
-        var ws    = new WebSocket("ws://" + document.location.hostname + ":" + document.location.port + "/ws/games/{{ game.id }}")
+        var ws    = new WebSocket("wss://" + document.location.hostname + ":" + document.location.port + "/ws/games/{{ game.id }}")
         let board = null
         let start = null
         let format = '1|1'

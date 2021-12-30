@@ -1,0 +1,302 @@
+
+body {
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.flex-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-container .chatbox {
+    flex-grow: 1;
+    display: flex;
+}
+
+.flex-container .chatnav {
+    min-width: 500px;
+    border-right: 1px solid #dee2e6;
+}
+.flex-container .chatnav h1 {
+    font-size: 40px;
+}
+.flex-container .chatnav input {
+    width: calc(100% - 20px);
+    position: relative;
+    left: 10px;
+    border: none;
+}
+.flex-container .chatnav .user {
+    border-top: 1px solid #dee2e6;
+    padding: 10px;
+    display: flex;
+}
+.flex-container .chatnav .user img {
+    width: 90px;
+    height: 90px;
+}
+.flex-container .chatnav .user:last-child() {
+    border-bottom: 1px solid #dee2e6;
+}
+.flex-container .chatnav .user p {
+    padding: 0;
+    text-overflow: ellipsis;
+    width: 390px; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* number of lines to show */
+    line-height: 1.5em;        /* fallback */
+    max-height: 3em;       /* fallback */
+    margin: 0;
+    font-size: 15px;
+    font-style: italic;
+}
+
+.flex-container .chevron-right-container {
+    width: 0%;
+    height: 0%;
+    position: absolute;
+    left: 5px;
+    top: 62px;
+    background-color: #fff;
+    border-radius: 5px;
+}
+.flex-container .chevron-right {
+    width: 100%;
+    height: 100%;
+    fill: #77c7ca;
+    filter: invert(87%) sepia(27%) saturate(597%) hue-rotate(132deg) brightness(83%) contrast(89%);
+}
+.flex-container .chevron-right-container:hover {
+    background-color: #fffa;
+}
+
+.flex-container .chatnav .user h2 {
+
+}
+
+
+@media (max-width: 991px) {
+    .flex-container .chatnav .user div {
+        width: calc(100% - 100px);
+    }
+
+    .flex-container .chevron-right-container {
+        width: 30px;
+        height: 30px;
+    }
+
+    .flex-container .chatnav {
+        min-width: 100%;
+        height: calc(100vh - 57px);
+        z-index: 20;
+        transition: 1s;
+        position: absolute;
+        background-color: #fff;
+    }   
+    .flex-container {
+        display: block;
+    }
+    .flex-container .msg-area {
+        width: 100%;
+        height: calc(100% - 60px);
+        overflow: hidden;
+    }
+    .flex-container .chatnav .user p {
+        width: 100%;
+    }
+
+    .flex-container .msg-area.non-hidden {
+        width: 100%;
+    }
+    .flex-container .chatnav.hidden {
+        transform: translate(-100%);
+    }
+}
+
+.flex-container .msg-area {
+    flex-grow: 1;
+    overflow: none;
+    background: #f1f2f3;
+    display: flex;
+}
+.flex-container .col-1 {
+    width: 100%;
+    flex: 1;
+    flex-grow: 1;
+    max-height: calc(100vh - 83px - 80px);
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, .45);
+}
+.flex-container .col-2 {
+    flex-basis: 250px;
+    background: #3874c9;
+}
+.flex-container .msg-row {
+    display: flex;
+    align-items: center;
+    margin: 40px;
+}
+.flex-container .msg-row2 {
+    justify-content: flex-end;
+}
+.flex-container .msg-text {
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 20px 40px;
+    border-radius: 8px;
+    flex-basis: 70%;
+    font-weight: 300;
+}
+.flex-container .row-msg {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.flex-container .msg-input {
+    height: 80px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-top: 1px solid #dee2e6;
+}
+.flex-container .msg-row2 .msg-text{
+    background-color: #d2fcd688;
+}
+
+.flex-container .msg-input {
+    padding-right: 30px;
+}
+.flex-container .msg-input img {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    right: 50px;
+    margin-top: 10px;
+}
+.flex-container .msg-input input {
+    border: none;
+    font-size:100%;
+    position: relative;
+    left: 15px;
+    top: 5px;
+    width: calc(100% - 90px);
+    height: calc(100% - 30px);
+}
+.flex-container .msg-input input:focus-visible {
+    outline: none;
+}
+
+
+
+.game-starter {
+    width: 450px;
+    height: max-content;
+    position: absolute;
+    right: 20px;
+    bottom: 80px;
+    background-color: #fff;
+    padding-top: 20px;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.game-starter>h1 {
+    text-align: center;
+}
+.game-starter>div {
+    max-height: fit-content;
+    overflow-y: scroll;
+}
+.game-starter>div>div {
+    border-top: solid 1px #dee2e6;
+    padding-top: 12px;
+}
+.game-starter>div>div>h3 {
+    margin-left: 20px;
+}
+.game-starter>div>div>div {
+    display: flex;
+}
+.game-starter>div>div>div>p {
+    flex: 1 1 auto;
+    margin: 10px;
+    padding: 10px;
+    text-align: center;
+    background-color: #00000022;
+    border-radius: 3px;
+    transition: 0.2s;
+    cursor: pointer;
+}
+.game-starter>div>div>div>p:hover {
+    background-color: #00000011;
+}
+.game-starter.hidden {
+    width: 0px;
+    overflow: hidden;
+}
+.game-starter .column-flex {
+    flex-direction: column;
+}
+
+@media (max-height: 991px) {
+    .game-starter {
+        bottom: 130px;
+        max-width: 80vw;
+        max-height: calc(100vh - 200px);
+    }
+}
+
+
+/* Inputs */
+.input-container>input.input {
+    position: absolute;
+    
+    width: 95%;
+    height: 25px;
+    left:50%;
+    margin-top: 15px;
+    transform: translate(-50%, 0%);
+
+    outline: none;
+    border: none;
+    border-bottom: whitesmoke 2px solid;
+}
+.input-container>label {
+    left: 2.8%;
+    top: 15px;
+    font-size: 18px;
+    position: absolute;
+    pointer-events: none;
+    transition: 0.5s;
+}
+.input-container>span {
+    background-color: #65cea6;
+    height: 2px;
+    position: absolute;
+
+    left: 2.5%;
+    top: 39px;
+    width: 0%;
+    transition: 0.5s;
+}
+.input-container {
+    position: relative;
+    min-height: 50px;
+}
+
+.input-container>input:focus ~ label,
+.input-container>input:valid ~ label {
+    color: #65cea6;
+    font-size: 10px;
+    top: 0px;
+    left: 3.5%;
+}
+.input-container>input:focus ~ span,
+.input-container>input:valid ~ span {
+    width: 97%;
+}

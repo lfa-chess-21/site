@@ -1,0 +1,43 @@
+
+div.chatbox {
+    display: inline-block;
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    border:1px solid #dee2e6;
+}
+div.messages {
+    height: calc(100% - 30px);
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, .45);
+}
+div.chatbox * {
+    max-width: 100%;
+}
+div.chatbox input {
+    position: absolute;
+    bottom: 0px;
+    height: 30px;
+    border: none;
+    border-top:1px solid #dee2e6;
+    outline: none;
+    background-color: #eff2f5;
+    width: 100%;
+}
+@media (min-height: 650px) {
+    div.chatbox {
+      height: 400px;
+    }
+  }
+  @media (max-height: 400px) {
+    div.chatbox {
+      height: 100px;
+    }
+    body {
+        font-size: 1rem;
+    }
+    strong {
+        font-size: 1.2rem !important;
+    }
+  }

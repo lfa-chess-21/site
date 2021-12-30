@@ -1,0 +1,76 @@
+
+.messages.move-container {
+    height: 100%;
+}
+
+.messages .message {
+    height: 50px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.messages .message .move {
+    width: 50%;
+    height: 100%;
+}
+
+.messages .message .move {
+    width: 50%;
+    height: 100%;
+}
+
+.messages .message .move .btn {
+    text-align: center;
+    padding: 7px;
+    width: 80px;
+
+    position: relative;
+    left: 50%;
+    top:  50%;
+    transform: translate(-50%, -50%);
+}
+
+div.evaluation-bar {
+    height: 30px;
+    width: calc(100% - 20px);
+    margin: 10px;
+    position: relative;
+    display: inline-block;
+    background-color: #d6d6cfcc;
+}
+div.evaluation-bar span {
+    transition: 0.5s;
+    width: 50%;
+    height: 100%;   
+    position: absolute;
+    background-color: #999b9377;
+}
+div.evaluation-bar label {
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    position: relative
+}
+
+div.variant {
+    display: flex;
+}
+div.variant span {
+    min-width: 80px;
+    max-width: 80px;
+    overflow: hidden; 
+    padding: 5px;
+    background-color: #d6d6cfcc;
+}
+div.variant span.neg {
+    background-color: #999b99cc;
+}
+div.variant p {
+    height: 100%;
+    vertical-align: middle;
+    margin: 0px;
+    text-overflow: ellipsis;
+    overflow: hidden; 
+    white-space: nowrap;
+}
