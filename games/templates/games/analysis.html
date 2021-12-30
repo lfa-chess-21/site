@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Game</title>
+
+   <link href="/static/games/css/games.css" rel="stylesheet">
+    {% include 'header/header.html' %}
+    <script src="/static/games/js/chess.js"></script>
+    <link rel="stylesheet" href="/static/games/css/analysis.css">
+    <link rel="stylesheet" href="/static/games/css/gamebox.css">
+    <link rel="stylesheet" href="/static/games/css/game.css">
+</head>
+<body class="dark-theme">
+    <!--<div class="chess-container">
+        <div class="chess-nav">
+            <span></span>
+            <div class="links">
+                <div></div>
+                <a href="/">Accueil</a>
+                <a href="/tournaments/">Revenir au tournoi</a>
+            </div>
+        </div>
+        <div class="chess-objects">
+            <div class="chess-board" id="piece-container">
+            </div>
+        </div>
+    </div>-->
+
+    <div class="relative-nav with-border-bottom">
+        {% include 'navbar/navbar.html' %}
+    </div>
+
+    <div style="margin: 20px; display: flex; flex-direction: row; max-height: 80%;">
+        <div class="box-container" style="display: flex; flex-direction: column;">
+            <div class="gamebox buttons flex-item" style="height: auto;">
+                <p style="text-align: center; margin: 0; padding: 0; border-bottom: 1px solid #dee2e6;">Partie normale</p>
+                <p style="text-align: center; margin: 0; padding: 0;">
+                    <strong style="font-size: 1.5rem;">{{ game.player1 }}</strong> vs <strong style="font-size: 1.5rem;">{{ game.player2 }}</strong>
+                </p>
+                <!--
+                <p style="text-align: center; margin: 0; padding: 0;">
+                    1 - 0
+                </p>
+                -->
+
+                <div class='evaluation-bar'>
+                    <span></span>
+                    <label>+0.00</label>
+                </div>
+
+                <div id="variants">
+                    <!--
+                    <div class="variant">
+                        <span class="neg">-0.00</span>
+                        <p>e2e4 e7e5 d2d4 d7d5 g1f3</p>
+                    </div>
+                    <div class="variant">
+                        <span class="pos">-0.00</span>
+                        <p>e2e4 e7e5 d2d4 d7d5 g1f3</p>
+                    </div>
+                    -->
+                </div>
+            </div>
+
+        <link rel="stylesheet" href="/static/games/css/chatbox.css">
+        <div class="chatbox flex-item">
+            <div class="messages move-container">
+                <div class="message">
+                    <!--
+                    <div class="move">
+                        <button class="btn btn-chess-light">e2e4</button>
+                    </div>
+                    <div class="move">
+                        <button class="btn btn-chess-light">e7e6</button>
+                    </div>
+                    -->
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="box-container" style="display: flex; flex-direction: column; width: 50%; height: calc(50vw - 20px);">
+            <!-- Chess board    -->
+            <!-- Analysis board -->
+            <div class="gamebox chessbox flex-item">
+                <div class="chess-container">
+                    <div class="chess-objects">
+                        <div class="chess-board" id="piece-container">
+                        </div>
+                        <div id="promotion">
+
+                        </div>
+                        <div id="drag-container" style="position: absolute; width:100%; height: 100%;">
+                            <img draggable="false" src="/" style="position: relative; width: 0%; height: 0%; z-index: 20;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/games/js/advanced-stockfish.js"></script>
+
+    <script>
+        let build_mode = 1
+        const DATA_LIST = "{{ game.list_move }}".split(new RegExp('\\||;'))
+        const TIME_LIST = []
+        const MOVE_LIST = []
+        for (var i = 0; i < DATA_LIST.length; i += 2) {
+            TIME_LIST.push(DATA_LIST[i])
+        }
+        for (var i = 1; i < DATA_LIST.length; i += 2) {
+            MOVE_LIST.push(DATA_LIST[i])
+        }
+
+        const container = document.querySelector('.chatbox .messages .message')
+        for (var i = 0; i < MOVE_LIST.length; i ++) {
+            container.innerHTML += `<div class="move">
+                                        <button id="move${i}" class="btn btn-chess-light">${MOVE_LIST[i]}</button>
+                                    </div>`
+        }
+        for (var i = 0; i < MOVE_LIST.length; i ++) {
+            document.getElementById(`move${i}`).onclick = (event) => {
+                let target  = event.target
+                let move_id = Number(target.id.replace  ('move', ''))
+                
+                board.reset()
+                for (let i = 0 ; i <= move_id; i ++) {
+                    board.apply_move(new Move(TIME_LIST[i] + '|' + MOVE_LIST[i]))
+                }
+                board.build_html(1)
+
+                board_updated()
+            }
+        }
+
+        let board = new Board('{{ game.start_board }}')
+        board.build_html(1)
+
+        let current_board_built = 1
+        let default_evaluation = undefined
+
+        function board_updated () {
+            current_board_built += 1
+
+            let current_build = current_board_built
+            let moves = board.played
+            let stock_moves = []
+            let after_check_stock_moves = []
+
+            for (let i = 0; i < moves.length; i ++) {
+                stock_moves.push(moves[i][0].m.replace('=', ''))
+                after_check_stock_moves.push(moves[i][0].m.replace('=', ''))
+            }
+
+            STOCKFISH_WORKER.set_position(board._fen, moves)
+
+            STOCKFISH_WORKER._stock.onmessage = ({ data }) => {
+                if (data.startsWith ('Final evaluation')) {
+                    let eval = data.replace('Final evaluation', '')
+                                  .replace('(white side)', '')
+                                  .replace('(black side)', '').trim()
+                    if (eval == ': none (in check)') {
+                        STOCKFISH_WORKER._stock.postMessage(`go depth 1`)
+                    } else {
+                        default_evaluation = eval
+                        document.querySelector('div.evaluation-bar label').innerHTML = eval
+                        STOCKFISH_WORKER._stock.postMessage(`position fen ${board._fen} w KQkq moves ${stock_moves.join(' ')}`)
+                        STOCKFISH_WORKER.get_best_move( receive_variations, 3, 18 )
+                    }
+                }
+                if (data.startsWith('bestmove')) {
+                    after_check_stock_moves.push(data.replace('bestmove ', ''))
+                    STOCKFISH_WORKER._stock.postMessage(`position fen ${board._fen} w KQkq moves ${after_check_stock_moves.join(' ')}`)
+                    STOCKFISH_WORKER._stock.postMessage(`eval`)
+                }
+            }
+            STOCKFISH_WORKER._stock.postMessage('stop')
+
+            STOCKFISH_WORKER._stock.postMessage(`position fen ${board._fen} w KQkq moves ${stock_moves.join(' ')}`)
+
+            STOCKFISH_WORKER._stock.postMessage(`eval`)
+
+            function receive_variations ( variations ) {
+                let new_eval_func = moves.length % 2 == 1 ? Math.min : Math.max; 
+                let cm_eval_func  = moves.length % 2 == 1 ? Math.max : Math.min;    
+                let checkmate     = moves.length % 2 == 1 ? -Math.pow(10, 10) : Math.pow(10, 10)
+                
+                let new_eval = moves.length % 2 == 1 ? Math.pow(10, 9) : -Math.pow(10, 9)
+                for (let idx = 0; idx < variations.length; idx ++) { 
+                    if (variations[idx].evaluation != ': none (in check)' && !variations[idx].checkmate)
+                        new_eval = new_eval_func(Number(variations[idx].evaluation), new_eval)
+                }
+                for (let idx = 0; idx < variations.length; idx ++) { 
+                    if (variations[idx].checkmate) {
+                        let _for = (moves.length + variations[idx].moves.length) % 2 == 1 ? 1 : -1
+                        checkmate = cm_eval_func(checkmate, _for * variations[idx].moves.length)
+                        new_eval = new_eval_func(new_eval, _for * Math.pow(10, 10))
+                    }
+                }
+                
+                const label = document.querySelector('div.evaluation-bar label')
+                label.innerHTML = 'M' + checkmate
+
+                if (Math.abs(new_eval) != Math.pow(10, 10) && Math.abs(new_eval) != Math.pow(10, 9))
+                    label.innerHTML = new_eval
+                set_span(checkmate, new_eval)
+
+                const variant_container = document.getElementById('variants')
+                variant_container.innerHTML = ''
+                for (let idx = 0; idx < variations.length; idx ++) { 
+                    let reval = variations[idx].evaluation
+                    if (variations[idx].checkmate) {
+                        let _for = (moves.length + variations[idx].moves.length) % 2 == 1 ? 1 : -1
+                        reval = 'M' + _for * variations[idx].moves.length
+                    }
+
+                    variant_container.innerHTML += `
+                        <div class="variant">
+                            <span class="${String(reval).includes('-') ? 'neg' : ''}">${reval}</span>
+                            <p>${variations[idx].moves.join(' ')}</p>
+                        </div>
+                        `
+                }
+            }
+
+            function set_span(checkmate, eval) {
+                const span = document.querySelector('div.evaluation-bar span')
+                
+                if (Math.abs(eval) == Math.pow(10, 10) || Math.abs(eval) == Math.pow(10, 9)) {
+                    span.style.width = checkmate < 0 ? '100%' : '0%'
+                } else {
+                    let sign = eval == 0 ? 1 : eval / Math.abs(eval)
+                    let log10 = Math.min(4, Math.log(Math.abs(eval) + 1) / Math.log(5)) * 10
+                    span.style.width = `calc(50% ${sign == 1 ? '-' : '+'} ${log10}%)`
+                }
+            }
+        }
+    </script>
+</body>
+</html>

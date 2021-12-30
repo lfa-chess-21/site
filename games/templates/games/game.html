@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Game</title>
+
+   <link href="/static/games/css/games.css" rel="stylesheet">
+    {% include 'header/header.html' %}
+    <script src="/static/games/js/chess.js"></script>
+    <link rel="stylesheet" href="/static/games/css/gamebox.css">
+    <link rel="stylesheet" href="/static/games/css/game.css">
+</head>
+<body class="dark-theme">
+    <!--<div class="chess-container">
+        <div class="chess-nav">
+            <span></span>
+            <div class="links">
+                <div></div>
+                <a href="/">Accueil</a>
+                <a href="/tournaments/">Revenir au tournoi</a>
+            </div>
+        </div>
+        <div class="chess-objects">
+            <div class="chess-board" id="piece-container">
+            </div>
+        </div>
+    </div>-->
+
+    <script>
+        function safify_string(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // TODO replace with current URL
+        var ws    = new WebSocket("ws://" + document.location.hostname + ":" + document.location.port + "/ws/games/{{ game.id }}")
+        let board = null
+        let start = null
+        let format = '1|1'
+        let all_moves = []
+        let other_user = null
+        let build_mode = '{{ game.player1.username }}' == '{{ request.user.username }}' ? 1 : -1
+        ws.onopen = function (event) {
+            ws.send("SESSION: {{ request.session.session_key }}")
+        }
+
+        ws.onmessage = function (event) {
+            console.log(event)
+            let datas = event.data.split("/%/")
+            for (let idx = 0; idx < datas.length; idx ++) {
+                try {
+
+                let data = datas[idx]
+                let args = data.split(": ")
+
+                if (args[0] == 'FEN') {
+                    board = new Board(args[1])
+                    board.build_html(build_mode)
+                } else if (args[0] == 'START_TIME') {
+                    start = Number(args[1])
+                } else if (args[0] == 'FORMAT') {
+                    format = args[1]
+                } else if (args[0] == "MOVE") {
+                    if (board) {
+                        
+                        const drg_area = document.querySelector('#drag-container>img')
+                        if (drg_area.style.width == '12.5%' && !is_dragging) {
+                            drg_area.style.width  = '0%'
+                            drg_area.style.height = '0%'
+                            drg_area.style.cursor = 'pointer'
+                        }
+
+                        board.apply_move(new Move(args[1]))
+                        board.build_html(build_mode)
+                        all_moves.push(new Move(args[1]))
+
+                        build_clocks()
+                    }
+                } else if (args[0] == "MOVES") {
+                    let moves = args[1].split(";")
+                    for ( let midx = 0; midx < moves.length; midx ++ ) {
+                        board.apply_move(new Move(moves[midx]))
+                        all_moves.push(new Move(moves[midx]))
+                    }
+                    board.build_html(build_mode)
+                    build_clocks()
+                } else if (args[0] == "MESSAGE") {
+                    let user = args[1]
+                    let message = safify_string(event.data.replace(`MESSAGE: ${user}: `, ""))
+                    show(message, user)
+                } else if (args[0] == "STALEMATE") {
+                    if (args[1] == "PROPOSE" && args.length == 3) {
+                        other_user = args[2]
+                        show ('propose la nulle <br><div id="accept"><img src="/static/games/images/handshake.svg">Accepter</div><div id="reject"><img src="/static/games/images/not_interested.svg">Refuser</div>', args[2])
+                        document.querySelector('#accept').onclick = function () {
+                            ws.send('STALEMATE: ACCEPT')
+                            document.querySelector('#accept').parentNode.innerHTML = `<strong>${other_user}</strong> propose la nulle<br>Vous avez accepté la nulle`
+                        }
+                        document.querySelector('#reject').onclick = function () {
+                            ws.send('STALEMATE: REFUSE')
+                            document.querySelector('#reject').parentNode.innerHTML = `<strong>${other_user}</strong> propose la nulle<br>Vous avez refusé la nulle`
+                        }
+                    } else {
+                        show('<strong>'+args[1]+'</strong>', '')
+                    }
+                } else if (args[0] == 'CHECKMATE') {
+                    show('<strong>'+args[1]+'</strong>', '')
+                } else if (args[0] == 'INVALID') {
+                        cancel_move()
+                }
+
+                } catch {}
+            }
+        }
+
+
+        function build_clocks () {
+            let time0 = format.split( '|' )[0] * 60 * 1000;
+            let time1 = format.split( '|' )[0] * 60 * 1000;
+
+            for (var i = 0; i < all_moves.length; i+= 2) {
+                let last_time = start;
+                if (i != 0)
+                    last_time = Number(all_moves[i - 1].t)
+                
+                time0 -= all_moves[i].t - last_time
+                time0 += Number(format.split( '|' )[1]) * 1000
+            }
+            for (var i = 1; i < all_moves.length; i+= 2) {
+                let last_time = Number(all_moves[i - 1].t)
+                
+                time1 -= all_moves[i].t - last_time
+                time1 += Number(format.split( '|' )[1]) * 1000
+            }
+
+            return [time0, time1]            
+        }
+        function to_clock_time (time) {
+            time = Math.max(0, time)
+
+            let seconds = Math.round(time % 60000 / 1000)
+            let minutes = Math.floor(time / 60000)
+            
+            let smi = String(minutes)
+            if (smi.length == 1)
+                smi = '0' + smi
+            let sse = String(seconds)
+            if (sse.length == 1)
+                sse = '0' + sse
+            return smi + ':' + sse
+        }
+        function update_clocks () {
+            let last_time = start
+            if (all_moves.length != 0)
+                last_time = Number(all_moves[all_moves.length - 1].t)
+            
+            let diff = new Date().getTime() - last_time
+            
+            let times = build_clocks()
+            times[all_moves.length % 2] -= diff
+            
+            document.querySelector('#clock0').innerHTML = to_clock_time(times[0])
+            document.querySelector('#clock1').innerHTML = to_clock_time(times[1])
+        }
+
+        interval = setInterval(update_clocks, 1000)
+    </script>
+
+    <div class="relative-nav with-border-bottom">
+        {% include 'navbar/navbar.html' %}
+    </div>
+
+    <div style="margin: 20px; display: flex; flex-direction: row; max-height: 80%;">
+        <div class="box-container" style="display: flex; flex-direction: column;">
+            <div class="gamebox buttons flex-item" style="height: auto;">
+                <p style="text-align: center; margin: 0; padding: 0; border-bottom: 1px solid #dee2e6;">Partie normale</p>
+                <p style="text-align: center; margin: 0; padding: 0;">
+                    <strong style="font-size: 1.5rem;">{{ game.player1 }}</strong> vs <strong style="font-size: 1.5rem;">{{ game.player2 }}</strong>
+                </p>
+                <!--
+                <p style="text-align: center; margin: 0; padding: 0;">
+                    1 - 0
+                </p>
+                -->
+                <div class="buttons">
+                    <div id="abandon">
+                        <img src='/static/games/images/flag.svg'>
+                        <p>Abandonner</p>
+                    </div>
+                    <div id="nulle">
+                        <p>Nulle</p>
+                        <img   src='/static/games/images/handshake.svg'>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <div>
+                        <p id="clock0">00:00</p>
+                        <img src='/static/games/images/timer.svg'>
+                    </div>
+                    <div>
+                        <img src='/static/games/images/timer.svg'>
+                        <p id="clock1">00:00</p>
+                    </div>
+                </div>
+            </div>
+
+            {% include 'games/chatbox.html' %}
+        </div>
+        <div class="box-container" style="display: flex; flex-direction: column; width: 50%; height: calc(50vw - 20px);">
+            <!-- Chess board    -->
+            <!-- Analysis board -->
+            <div class="gamebox chessbox flex-item">
+                <div class="chess-container">
+                    <div class="chess-objects">
+                        <div class="chess-board" id="piece-container">
+                        </div>
+                        <div id="promotion">
+
+                        </div>
+                        <div id="drag-container" style="position: absolute; width:100%; height: 100%;">
+                            <img draggable="false" src="/" style="position: relative; width: 0%; height: 0%; z-index: 20;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector('#abandon').onclick = (event) => {
+            ws.send('RESIGN')
+        }
+        document.querySelector('#nulle').onclick = (event) => {
+            ws.send('STALEMATE: PROPOSE')
+        }
+    </script>
+</body>
+</html>
