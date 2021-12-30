@@ -1,0 +1,21 @@
+
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Connexion - Club échecs LFA</title>
+		<link rel="icon" href="favicon.ico">
+		<link rel="stylesheet" type="text/css" href="/static/account/css/login.css"/>
+	</head>
+
+	<body id="login">
+		<form action="/api/login/?next={{ next }}" method="POST">
+			<h2><b>Connexion</b></h2>
+			{% csrf_token %}
+			<input type="text" name="username" placeholder="Nom d'utilisateur">
+			<input type="password" name="password" placeholder="Mot de passe">
+			<button>Connexion</button>
+			<p>Pas de compte ? <a href="/account/create?next={{ next }}">Créer un compte</a></p>
+		</form>
+	</body>
+</html>

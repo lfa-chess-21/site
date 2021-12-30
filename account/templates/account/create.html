@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>Créer un compte - Club échecs LFA</title>
+		<link rel="icon" href="favicon.ico">
+		<link rel="stylesheet" type="text/css" href="/static/account/css/login.css"/>
+	</head>
+
+	<body id="login">
+		<form action="/api/create/account/?next={{ next }}" method="POST">
+			<h2><b>Créer un compte</b></h2>
+			{% csrf_token %}
+			<input type="text" name="username" placeholder="Nom d'utilisateur">
+			{% if err %}
+			<c>{{ err }}</c>
+			{% endif %}
+			<input type="password" name="password" placeholder="Mot de passe">
+			<c>Le mot de passe doit faire entre 8 et 20 caractères</c>
+			<input type="password" name="password_repeat" placeholder="Confirmation du mot de passe">
+			<button>Créer</button>
+			<p>Vous avez déjà un compte ? <a href="/account/login?next={{ next }}">Se connecter</a></p>
+		</form>
+	</body>
+</html>
