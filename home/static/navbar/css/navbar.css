@@ -1,0 +1,39 @@
+
+:root {
+    --navbar-height: 75px;
+}
+
+navbar>ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+navbar>ul>li {
+    margin: 10px;
+    margin-right: 0px;
+    display: flex;
+}
+
+navbar>ul>li>* {
+    position: relative;
+    top: 50%;
+    transform: translate(0%, -50%);
+}
+
+navbar>ul>li>a {
+  line-height: var(--navbar-height);
+  text-align: center;
+  text-decoration: none;
+  color: #000000;
+  font-weight: 850;
+  font-size: 30px;
+}
+
+navbar>ul>li.navbar-right-floating {
+    position: absolute;
+    right: 0%;
+    top: 0%;
+    transform: translate(-10px, 50%);
+}
