@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    {% include 'header/header.html' %}
+</head>
+
+<body>
+    <!-- TODO add @Cams to the credits of who helped (CSS) -->
+    {% include 'navbar/navbar.html' %}
+    <!-- Page Header-->
+    <header class="masthead" style="background-image: url('/static/media/images/background/home.jpg')">
+        <div class="container position-relative px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <div class="site-heading">
+                        <h1 id="page-title">{{ tournament.tournament_name }}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    {% if tournament.start > now %}
+    <!-- Main Content-->
+     <main class="mb-4">
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <h2>Inscription au tournoi</h2>
+                    <p class="border-top small text-muted fst-italic" style="margin-top: 0px;margin-bottom: 0px;">{% if tournament.is_open %}Les inscriptions sont ouvertes à partir du {{ tournament.subscribe_date.day }}/{{ tournament.subscribe_date.month }}/{{ tournament.subscribe_date.year }}{% else %}Les inscriptions ne sont pas ouvertes{% endif %}</p>
+                    <a class="btn btn-{% if subscribed %}secondary{% else %}chess-light{% endif %}" href="/tournaments/{{ tournament.id }}/toggle">{% if subscribed %}Se désinscrire{% else %}S'inscrire{% endif %}</a>
+                </div>
+            </div>
+        </div>
+    </main>
+    {% endif %}
+    <main class="mb-4">
+       <div class="container px-4 px-lg-5">
+           <div class="row gx-4 gx-lg-5 justify-content-center">
+               <div class="col-md-10 col-lg-8 col-xl-7">
+                   <h2>Format du tournoi</h2>
+                   <p class="border-top small text-muted fst-italic" style="margin-top: 0px;margin-bottom: 0px;"></p>
+                    {% autoescape off %}{{ tournament.tournament_format_description}}{% endautoescape %}
+                </div>
+           </div>
+       </div>
+   </main>
+   {% if tournament.start <= now %}
+   <main class="mb-4">
+      <div class="container px-4 px-lg-5">
+          <div class="row gx-4 gx-lg-5 justify-content-center">
+              <div class="col-md-10 col-lg-8 col-xl-7">
+                    <h2>Résultats du tournoi</h2>
+                    <p class="border-top small text-muted fst-italic" style="margin-top: 0px;margin-bottom: 0px;"></p>
+                    
+               </div>
+                <svg style="padding: 0; width: 700px; height: 700px;">
+                </svg>
+          </div>
+      </div>
+      <div class="container px-4 px-lg-5">
+          <div class="row gx-4 gx-lg-5 justify-content-center">
+              <div class="col-md-10 col-lg-8 col-xl-7">
+                    <h2>Participer</h2>
+                    <p class="border-top small text-muted fst-italic" style="margin-top: 0px;margin-bottom: 0px;">
+                        Pour participer, rendez vous dans l'onglet <a href="/social/">social</a> pour défier votre adversaire. Lorsque vous vous serez accordés sur un horaire, envoyez-vous un défi !
+                    </p>
+                    
+               </div>
+          </div>
+      </div>
+  </main>
+  {% include 'tournaments/svg-builder.html' %}
+  {% endif %}
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+
+    <footer class="border-top">
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <ul class="list-inline text-center">
+                        <li class="list-inline-item">
+                            <!-- TODO create github lfa-chess-club -->
+                            <a href="https://github.com/lfa-info-21/">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fas fa-circle fa-stack-2x"></i>
+                                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="small text-center text-muted fst-italic">Copyright &copy; Club échecs du LFA 2021</div>
+                    <div class="small text-center text-muted fst-italic">Copyright &copy; CSS par Camille Venisse</div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

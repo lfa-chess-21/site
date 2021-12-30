@@ -1,0 +1,230 @@
+
+
+<style>
+    svg .hover-container g.object {display: none;}
+    svg .hover-container:hover g.object {display: block;}
+    svg .hover-container {width: 100%; height: 100%;}
+</style>
+<script>
+
+    rounds = []
+
+    {% for round in rounds %}
+    array = []
+    {% for object in round %}
+
+    {% if object %}
+    array.push(
+        {
+            'player1': "{{ object.current_game.player1 }}",
+            'player2': "{{ object.current_game.player2 }}",
+            'score1':  "{{ object.current_game.score1  }}",
+            'score2':  "{{ object.current_game.score2  }}",
+            'scoreN':  "{{ object.current_game.score_needed  }}",
+        }
+    )
+    {% else %}
+    array.push({})
+    {% endif %}
+
+    {% endfor %}
+    rounds.push(array)
+    {% endfor %}
+    console.log(rounds)
+
+    // COLOR PALETTE
+    const COLOR_PALETTE = {
+        "Red Salsa":                "#f94144",
+        "Orange Red":               "#f3722c",
+        "Yellow Orange Color Wheel":"#f8961e",
+        "Mango Tango":              "#f9844a",
+        "Maize Crayola":            "#f9c74f",
+        "Pistachio":                "#90be6d",
+        "Zomp":                     "#43aa8b",
+        "Cadet Blue":               "#4d908e",
+        "Queen Blue":               "#577590",
+        "CG Blue":                  "#277da1"
+    }
+
+    function arrow (ax, ay, bx, by, ady) {
+        adx = (bx - ax) / 2
+
+        dx = bx - ax
+        dy = by - ay
+        return `<path 
+        style="fill: #433E3F;"
+        d="M ${ax} ${ay} l ${adx} ${ady} l ${adx} -${ady} l 0 ${dy - ady} l -${adx} ${ady} l -${adx} -${ady} l 0 -${dy - ady}"></path>`
+    }
+
+    const SVG_HEIGHT  = 700;
+    const SVG_WIDTH   = 700;
+    const ARROW_WIDTH = 80;
+    let round_count = rounds.length - 1
+    let round_area = SVG_HEIGHT / round_count
+
+    const svg = document.querySelector("svg")
+
+    const types = [
+        'Finale',
+        'Demi-finales',
+        'Quarts de finale',
+        'Huitième de finale',
+        'Seixième de finale',
+        'Trente-deuxième de finale',
+        // We don't care about the next things
+    ]
+
+    // Build tournaments status
+    function get_players(round_idx, round_id) {
+        let round = rounds[round_idx][round_id]
+        let upper_round1 = rounds[round_idx + 1][round_id * 2]
+        let upper_round2 = rounds[round_idx + 1][round_id * 2 + 1]
+        let players = [ round.player1, round.player2 ]
+        if (Object.keys(upper_round1).length != 0) {
+            if ((upper_round1.score1 <  upper_round1.scoreN
+            &&   upper_round1.score2 <  upper_round1.scoreN)
+            ||   upper_round1.score1 == upper_round1.score2) {
+                players[0] = ''
+            }
+        }
+        if (Object.keys(upper_round2).length != 0) {
+            if ((upper_round2.score1 <  upper_round2.scoreN
+            &&   upper_round2.score2 <  upper_round2.scoreN)
+            ||   upper_round2.score1 == upper_round2.score2) {
+                players[1] = ''
+            }
+        }
+        return players
+    }
+    function align_y(el) {
+        el.id  = ''
+        el.attributes['y'].value = Number(el.attributes['y'].value) 
+                                        + el.getClientRects()[0].height
+    }
+    function align_x(el) {
+        el.attributes['x'].value = Number(el.attributes['x'].value)
+                                        - el.getClientRects()[0].width - 10
+    }
+
+    let RECT_WIDTH  = 200
+    const RECT_HEIGHT = 75
+    let fnt_size = 22;
+    let offset = 0
+    for (let round_idx = 0; round_idx < round_count; round_idx ++) {
+        RECT_WIDTH -= 30;
+        fnt_size -= 3;
+        let start = 10 + ARROW_WIDTH
+        let width_allowed = (SVG_WIDTH - start) / rounds[round_idx].length
+        let margin = (width_allowed - RECT_WIDTH) / 2
+        
+        for (let round_id = 0; round_id < rounds[round_idx].length; round_id++) {
+            let object = rounds[round_idx][round_id]
+            round_idx = round_count - round_idx - 1;
+
+            if (Object.keys(rounds[round_count - round_idx][round_id*2]).length != 0) {
+                let rx = start + width_allowed * round_id + margin
+                let ry = round_area * (round_idx + 1/2) - RECT_HEIGHT / 2
+                svg.innerHTML += `<path fill="transparent" stroke-width="5" stroke="#8b8784CC"
+                  d="M ${rx + RECT_WIDTH / 2} ${ry + RECT_HEIGHT / 2} l 0 ${-round_area/2} l ${-width_allowed / 4} 0 l 0 ${-round_area/2}" />`
+            } if (Object.keys(rounds[round_count - round_idx][round_id*2 + 1]).length != 0) {
+                let rx = start + width_allowed * round_id + margin
+                let ry = round_area * (round_idx + 1/2) - RECT_HEIGHT / 2
+                svg.innerHTML += `<path fill="transparent" stroke-width="5" stroke="#8b8784CC"
+                  d="M ${rx + RECT_WIDTH / 2} ${ry + RECT_HEIGHT / 2} l 0 ${-round_area/2} l ${width_allowed / 4} 0 l 0 ${-round_area/2}" />`
+            }
+
+            if (Object.keys(object).length != 0) {
+                let rx = start + width_allowed * round_id + margin
+                let ry = round_area * (round_idx + 1/2) - RECT_HEIGHT / 2
+                svg.innerHTML += `<rect x=${rx} 
+                                        y=${ry}
+                                        width="${RECT_WIDTH}"
+                                        height="${RECT_HEIGHT}"
+                                        fill="#8b8784">`
+                let players = get_players(round_count - round_idx - 1, round_id)
+                
+                svg.innerHTML += `<text font-size="${fnt_size}px" id="txt" x="${rx + 10}" y="${ry+offset}">
+                                    ${players[0] == '' ? 'A déterminer' : players[0]}
+                                </text>`
+                align_y(svg.querySelector(`text#txt`))
+                
+                svg.innerHTML += `<text font-size="${fnt_size}px" id="txt" x="${rx + 10}" y="${ry + RECT_HEIGHT / 2+offset}">
+                                    ${players[1] == '' ? 'A déterminer' : players[1]}
+                                </text>`
+                align_y(svg.querySelector(`text#txt`))
+                
+                if (players[0] != '') {
+                    svg.innerHTML += `<text id="txt" x="${rx + RECT_WIDTH}" y="${ry}">
+                                        ${object.score1}
+                                    </text>`
+                    align_x(svg.querySelector(`text#txt`))
+                    align_y(svg.querySelector(`text#txt`))
+                }
+                if (players[1] != '') {
+                    svg.innerHTML += `<text id="txt" x="${rx + RECT_WIDTH}" y="${ry + RECT_HEIGHT / 2}">
+                                        ${object.score2}
+                                    </text>`
+                    align_x(svg.querySelector(`text#txt`))
+                    align_y(svg.querySelector(`text#txt`))
+                }
+            }
+            round_idx = round_count - round_idx - 1;
+        }
+        offset += 3
+    }
+    
+    let NEW_HTML = ''
+    for ( let i = 0; i < round_count; i++ ) {
+        let HTML = ""
+        HTML += "<g class=\"hover-container arrow\">"
+        HTML += arrow ( 10, round_area * i + 10, 10 + ARROW_WIDTH, round_area * (i + 1) - 10, round_area / 10 )
+        
+        i = round_count - i - 1;
+        let args_def = undefined
+        let cur      = rounds[i]
+        let upper    = i == 0 ? [] : rounds[i - 1]
+        for ( let j = 0; j < rounds[i].length; j++ ) {
+            if (Object.keys(rounds[i][j]).length != 0)
+                args_def = rounds[i][j]
+        }
+
+        i = round_count - i - 1;
+        HTML += `<text style="fill: #f8f9fa;" text-anchor="middle" x="${10 + ARROW_WIDTH / 2}" y="${round_area * (i + 1/2)}">BO${args_def.scoreN * 2 - 1}</text>`
+        HTML += `<g class="object" style="z-index: 1;">
+                <rect style="fill: #7a7265DD;" x="${10 + ARROW_WIDTH / 2}" y="${round_area * (i + 1/2) - 40}" width="320" height="40">
+                    </rect>
+                    <text x y style="fill: #000;" alignment-baseline="central" text-anchor="middle" dx="80" dy="13">Best Of ${args_def.scoreN * 2 - 1} - ${types[round_count - i - 1]}</text>
+            </g>`
+        HTML += "</g>"
+        NEW_HTML = HTML + NEW_HTML
+    }
+    svg.innerHTML += NEW_HTML
+
+    let nodes = document.querySelectorAll("g.arrow")
+    for (let i = 0; i < nodes.length; i++) {
+        nodes[i].onmousemove = function (event) {
+            let target = event.target
+            while ( target != nodes[i] )
+                target = target.parentNode
+            
+            let object = target.querySelector("g.object>rect")
+            let rect   = svg.getClientRects()[0]
+            
+            object.attributes['x'].value = event.clientX - rect.x
+            object.attributes['y'].value = event.clientY - rect.y
+
+            let parent = object.parentNode
+            let items = parent.querySelectorAll("*")
+            for (let j = 0; j < items.length; j++) {
+                if (items[j] != object) {
+                    items[j].attributes['x'].value = event.clientX - rect.x + Number(items[j].attributes['dx'].value)
+                    items[j].attributes['y'].value = event.clientY - rect.y + Number(items[j].attributes['dy'].value)
+                }
+            }
+        }
+    }
+
+
+    
+    
+</script>

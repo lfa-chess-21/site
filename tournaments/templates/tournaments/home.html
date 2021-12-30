@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+    {% include 'header/header.html' %}
+</head>
+
+<body>
+    <!-- TODO add @Cams to the credits of who helped (CSS) -->
+    {% include 'navbar/navbar.html' %}
+    <!-- Page Header-->
+    <header class="masthead" style="background-image: url('/static/media/images/background/home.jpg')">
+        <div class="container position-relative px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <div class="site-heading">
+                        <h1 id="page-title">Tournois</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content-->
+     <main class="mb-4">
+        {% for tournament in tournaments %}
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <a href="/tournaments/{{ tournament.pk }}"><h2>{{ tournament.tournament_name }}</h2></a>
+                    <p class="border-top small text-muted fst-italic" style="margin-top: 0px;margin-bottom: 0px;">Du {{ tournament.start.day }}/{{ tournament.start.month }}/{{ tournament.start.year }} au {{ tournament.end.day }}/{{ tournament.end.month }}/{{ tournament.end.year }}</p>
+                    <p style="margin-top: 10px;">{% if tournament.is_open %}Les inscriptions sont ouvertes à partir du {{ tournament.subscribe_date.day }}/{{ tournament.subscribe_date.month }}/{{ tournament.subscribe_date.year }}{% else %}Les inscriptions ne sont pas ouvertes{% endif %}</p>
+                    <a href="/tournaments/{{ tournament.pk }}" class="btn btn-chess-light">Accéder au tournoi</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </main>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+
+    <footer class="border-top">
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <ul class="list-inline text-center">
+                        <li class="list-inline-item">
+                            <!-- TODO create github lfa-chess-club -->
+                            <a href="https://github.com/lfa-info-21/">
+                                <span class="fa-stack fa-lg">
+                                    <i class="fas fa-circle fa-stack-2x"></i>
+                                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="small text-center text-muted fst-italic">Copyright &copy; Club échecs du LFA 2021</div>
+                    <div class="small text-center text-muted fst-italic">Copyright &copy; CSS par Camille Venisse</div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
