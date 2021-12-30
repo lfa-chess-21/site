@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LFA Chess Club - API Documentation</title>
+</head>
+<body>
+    <h1>Welcome to the LFA Chess Club API Documentation</h1>
+    <p>The goal of this page is to explain each route one by one</p>
+
+    <p></p>
+
+    <div>
+        <h2>Route /api/routes</h2>
+        <h3>Method : GET</h3>
+        <p>Gives a List of the API routes with the documentation of each route</p>
+    </div>
+    <div>
+        <h2>Route /api/login</h2>
+        <h3>Method : POST</h3>
+        <ul>
+            <li>ARGUMENT : METHOD=POST NAME='username'</li>
+            <li>ARGUMENT : METHOD=POST NAME='password'</li>
+            <li>ARGUMENT : METHOD=GET NAME='next' OPTIONNAL : redirects to a certain url otherwise gives a JSON value</li>
+        </ul>
+        <p>Request to login to an account</p>
+    </div>
+    <div>
+        <h2>Route /api/logout</h2>
+        <h3>Method : POST or GET</h3>
+        <ul>
+            <li>ARGUMENT : METHOD=GET NAME='next' OPTIONNAL : redirects to a certain url otherwise gives a JSON value</li>
+        </ul>
+        <p>Request to logout from an account</p>
+    </div>
+</body>
+</html>
