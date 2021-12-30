@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Show Game</title>
+
+    {% include 'header/header.html' %}
+    <link rel="stylesheet" href="/static/social/css/index.css">
+</head>
+<body class="dark-theme">
+    <div class="flex-container">
+        <div class="relative-nav with-border-bottom">
+            {% include 'navbar/navbar.html' %}
+        </div>
+
+        <div class="chatbox">
+            <div class="chatnav">
+                <div class="chatnav-users">
+                    <h1>Discussions</h1>
+                    <div class="input-container">
+                        <input class="input" name="search" required>
+                        <span></span>
+                        <label class="inp-label">Ouvrir la conversation</label>
+                    </div>
+                    <!--
+                    <div class="user active">
+                        <img class="online" src="/static/account/images/account_icon.png">
+                        <div>
+                            <h2>Some User</h2>
+                            <p>Last message that got cut because it is a really long message like who writes that much</p>
+                        </div>
+                    </div>
+                    <div class="user">
+                        <img src="/static/account/images/account_icon.png">
+                        <div>
+                            <h2>Some User</h2>
+                            <p>Last message that got cut because it is a really long message like who writes that much</p>
+                        </div>
+                    </div>
+                    <div class="user">
+                        <img src="/static/account/images/account_icon.png">
+                        <div>
+                            <h2>Some User</h2>
+                            <p>Last message that got cut because it is a really long message like who writes that much</p>
+                        </div>
+                    </div>
+                    -->
+                </div>
+            </div>
+
+            <div class="msg-area">
+                <div class="chevron-right-container">
+                    <img src="/static/navbar/images/chevron_right.svg" class="chevron-right">
+                </div>
+                <div class="row-msg">
+                    <div class="col-1">
+                        <!--
+                        <div class="msg-row msg-row2">
+                            <div class="msg-text">
+                                <h2>Test user</h2>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit. </p>
+                            </div>
+                        </div>
+                        <div class="msg-row">
+                            <div class="msg-text">
+                                <h2>Test user</h2>
+                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie, enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper. Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim. Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas adipiscing ante non diam sodales hendrerit. </p>
+                            </div>
+                        </div>
+                        -->
+                    </div>
+                    <div class="msg-input">
+                        <input type="text" placeholder="Envoyer un message">
+                        <img src="/static/social/images/sports_esports.svg">
+                        <div class="game-starter hidden">
+                            <h1>Défier</h1>
+                            <div>
+                                <div>
+                                    <h3>Blitz</h3>
+                                    <div>
+                                        <p>3|0</p>
+                                        <p>5|0</p>
+                                        <p>3|1</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3>Rapid</h3>
+                                    <div>
+                                        <p>10|0</p>
+                                        <p>15|0</p>
+                                        <p>30|0</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 id='tournaments-name'>Tournois</h3>
+                                    <div class="column-flex" id='tournaments'>
+                                        <p>Tournoi par défaut - Round 1</p>
+                                        <p>Tournoi par défaut - Round 1</p>
+                                        <p>Tournoi par défaut - Round 1</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const username = "{{ request.user.username }}"
+
+        const rounds = {}
+        const tournaments = new Set()
+
+        // FOR ROUND LOOP{% for round in rounds %}
+        if (!tournaments.has('{{ round.tournament.tournament_name }}'))
+            rounds['{{ round.tournament.tournament_name }}'] = []
+        tournaments.add('{{ round.tournament.tournament_name }}')
+
+        rounds['{{ round.tournament.tournament_name }}'].push({
+            'player1': '{{ round.current_game.player1 }}' == username ? '{{ round.current_game.player2 }}' : '{{ round.current_game.player1 }}',
+            'player2': '{{ round.current_game.player1 }}' == username ? '{{ round.current_game.player1 }}' : '{{ round.current_game.player2 }}',
+            'format':'{{ round.current_game.time_format }}'
+        })
+        // FOR ROUND LOOP{% endfor %}
+    </script>
+    <script src="/static/social/js/social.js"></script>
+</body>
+</html>
